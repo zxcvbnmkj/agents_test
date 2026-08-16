@@ -1,0 +1,10 @@
+- 数据信息
+  - 样本总数量：56 条，大小 131 MB
+  - 全量数据集下载地址：https://huggingface.co/datasets/meituan-longcat/VitaBench-2.0/blob/main/tasks.json
+  - sanple.json 中只抽取了一条但是大小已经 2.7 M 了
+- 输入：
+  - 用户的个人画像/健康状况
+  - 实时环境（时间/地点/天气）
+  - 商家/商品数据库
+- 输出：
+  - 为用户做出最合理的外卖决策或推荐外卖

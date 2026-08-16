@@ -1,0 +1,14 @@
+[project]
+name = "agents_test"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "zhangli", email = "2693175110@qq.com"},
+]
+dependencies = ["vita @ git+https://github.com/meituan-longcat/vitabench.git", "pydantic-ai>=2.31.0", "dotenv>=0.9.9"]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm]
+distribution = false
