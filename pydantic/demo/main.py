@@ -1,11 +1,5 @@
 """
 pdm run python pydantic/demo/main.py
-
-覆盖 Pydantic AI 全流程：提示词 → 依赖注入 → 工具 → 能力模块
-(defer_loading=True) → 结构化输出 → 运行。
-
-
-    pdm run python pydantic/demo/main.py
 """
 
 from __future__ import annotations
@@ -14,8 +8,9 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-# 复用父目录 pydantic/config.py（模型名/base_url/api_key 都在那里）
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# 复用根目录 config.py（模型名/base_url/api_key 都在那里）。
+# append 而非 insert(0)：避免根目录遮蔽真正的 pydantic 库。
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 import config  # noqa: E402
 
 from pydantic import BaseModel, Field  # noqa: E402

@@ -19,9 +19,12 @@ pydantic 库，而不会被本目录遮蔽。
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
-import config
+# 复用根目录 config.py。append 而非 insert(0)：避免根目录遮蔽真正的 pydantic 库。
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+import config  # noqa: E402
 from agent import build_agent
 from deps import build_context, load_task_file, pick_task
 
