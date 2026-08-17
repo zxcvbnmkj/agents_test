@@ -2,9 +2,6 @@
 ## 基准数据集
 ## 规则
 - 只能有一个 agent，禁止多 agent
-## 参赛成员
-- 工作流
-  - dify
-- 智能体
-  - pydantic
-  - langgraph
+## agents
+- pydantic
+- langgraph
