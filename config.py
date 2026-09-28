@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -26,3 +27,11 @@ BASE_URL = os.getenv('OPENAI_BASE_URL')
 
 #: API Key —— 仅从 .env 读取，缺失即报错，绝不内联
 API_KEY = os.environ['OPENAI_API_KEY']
+
+#: 各框架统一的采样参数：低温 + 关闭豆包深度思考，保证横向对比条件一致
+TEMPERATURE = 0.1
+EXTRA_BODY = {'thinking': {'type': 'disabled'}}
+
+# 本机 shell 配了全局代理（访问外网用），内网网关走代理会被掐断 TLS，必须直连
+_no_proxy = ','.join(filter(None, [os.getenv('no_proxy'), urlparse(BASE_URL).hostname]))
+os.environ['no_proxy'] = os.environ['NO_PROXY'] = _no_proxy
