@@ -11,22 +11,25 @@ State 是图里流转的数据（消息 + 最终决策）；Context 是本次运
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
 import config
+import tracing
 from bench.prompt import prompt_vars
-from langchain.tools import ToolRuntime, tool
 from langchain_core.messages import HumanMessage, ToolMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
-from langgraph.graph import END, START, MessagesState, StateGraph
+from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode
 from langgraph.runtime import Runtime
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import ValidationError
 
+from .deps import Context
+from .output import Decision, State
+from .tools import TOOLS
 
+tracing.setup_langchain()
 
 # Decision 作为「提交工具」一起绑定：模型调它即表示给出最终答案，由 respond 节点接住而不是 ToolNode 执行
 llm = ChatOpenAI(

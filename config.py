@@ -32,6 +32,9 @@ API_KEY = os.environ['OPENAI_API_KEY']
 TEMPERATURE = 0.1
 EXTRA_BODY = {'thinking': {'type': 'disabled'}}
 
+# Phoenix 本地服务地址；未配置时不启用 Phoenix tracing。
+PHOENIX_ENDPOINT = os.getenv('PHOENIX_ENDPOINT')
+
 # 本机 shell 配了全局代理（访问外网用），内网网关走代理会被掐断 TLS，必须直连
 _no_proxy = ','.join(filter(None, [os.getenv('no_proxy'), urlparse(BASE_URL).hostname]))
 os.environ['no_proxy'] = os.environ['NO_PROXY'] = _no_proxy

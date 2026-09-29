@@ -7,7 +7,9 @@ from bench.env import DeliveryEnv
 from bench.record import RunRecord
 from langchain_core.messages import AIMessage
 
-from .graph import Context, Decision, graph
+from .deps import Context
+from .graph import graph
+from .output import Decision
 
 # 每次模型调用对应 agent + 后继节点两步，与其他框架「最多 20 次模型调用」对齐
 RECURSION_LIMIT = 2 * 20 + 1

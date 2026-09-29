@@ -18,9 +18,9 @@ from .tools import get_store_products, search_products, search_stores
 
 SYSTEM_PROMPT = (Path(__file__).parent / 'system.md').read_text(encoding='utf-8')
 
-# SDK 默认把 trace 上传到 OpenAI 平台：内网网关没有对应 key，且轨迹里有用户数据
+# 当前项目使用自定义 OpenAI 兼容网关，且没有 OpenAI Traces 的认证配置。
+# 禁用 SDK 默认的 OpenAI tracing，避免每次运行产生 401；模型调用不受影响。
 set_tracing_disabled(True)
-
 
 def build_model() -> OpenAIChatCompletionsModel:
     """网关只兼容 Chat Completions，不用 SDK 默认的 Responses API；每次现建客户端，避免跨事件循环复用。"""

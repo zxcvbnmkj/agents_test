@@ -137,3 +137,12 @@ START → agent ─┬─ 调查询工具 → tools（ToolNode）──→ agent
 | LangGraph | 2/7 | 38.1% | 4.6 | 3.6 | 16.7 万 | 19.7s |
 
 样本太少、单次运行波动大（各框架命中的题互不重合，同一框架前后两次结果也不同），暂不能据此评判框架优劣。失败几乎都是模型本身选错：没有逐条核对明确条件（配送时长、规格、漏买），没有用上历史里的个性化偏好。
+
+## 追踪 agent 每轮调用
+- Pydantic AI 和 LangGraph 使用 Phoenix 追踪；OpenAI Agent SDK 使用它自身的 tracing（非 GPT 系列模型不可用）
+- 启动 phoenix 的方法
+```bash
+phoenix serve
+export PHOENIX_ENDPOINT=http://127.0.0.1:6006
+pdm run python run.py pydantic langgraph --limit 3
+```

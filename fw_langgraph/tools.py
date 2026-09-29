@@ -1,3 +1,8 @@
+from langchain.tools import ToolRuntime, tool
+
+from .deps import Context
+
+
 @tool
 def search_stores(runtime: ToolRuntime[Context], keywords: list[str] | None = None) -> list[dict]:
     """搜索外卖商家：店名、标签或在售商品名命中任一关键词即返回；不传关键词返回全部商家。

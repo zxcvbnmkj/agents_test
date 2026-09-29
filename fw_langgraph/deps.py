@@ -1,5 +1,8 @@
+from dataclasses import dataclass
+
 from bench.data import Case
 from bench.env import DeliveryEnv
+
 
 @dataclass
 class Context:

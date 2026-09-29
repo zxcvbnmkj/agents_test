@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import config
+import tracing
 from bench.prompt import prompt_vars
 from openai import AsyncOpenAI
 from pydantic_ai import Agent, RunContext
@@ -14,6 +15,8 @@ from pydantic_ai.providers.openai import OpenAIProvider
 from .deps import Deps
 from .output import FINAL_ANSWER
 from .tools import get_store_products, search_products, search_stores
+
+tracing.setup_pydantic()
 
 SYSTEM_PROMPT = (Path(__file__).parent / 'system.md').read_text(encoding='utf-8')
 MODEL_SETTINGS = {'temperature': config.TEMPERATURE, 'extra_body': config.EXTRA_BODY}
