@@ -59,6 +59,7 @@
   - 命中率 hit：选中商品覆盖全部 `target_product_ids`；
   - 精确率 exact：与目标商品集合完全一致；
   - 召回 recall：选中的目标商品占比（多件商品的子任务给部分分）；
+  - 店铺级别同时计算 `store_hit`、`store_exact`、`store_recall`，目标店铺由标准答案商品反查得到；
   - 另记 LLM 调用次数、工具调用次数、token、耗时。
 - **注意**：规则简化后分数与官方排行榜不可比，只用于本项目各框架之间横向对比。
 
@@ -74,7 +75,7 @@ fw_langgraph/
 results/             # 每个子任务一行明细：<框架>-<时间>.jsonl
 ```
 
-提示词模板 `system.md`、最终输出结构 `Decision`、工具说明都是 agent 的组成部分，放在各框架目录内、按框架自己的方式定义与注入；**三个框架的这些内容必须一致**，改一份要同步另外两份，否则对比不公平。`bench/prompt.py` 只负责把子任务整理成模板变量，`bench/record.py` 的 `RunRecord` 是 solve 交给评测的记录（决策以字典形式交出，不依赖任何框架的类）。
+提示词模板 `utils/system.md`、最终输出结构 `Decision`、工具说明都是 agent 的组成部分；三个框架统一加载同一个提示词模板，避免内容差异影响对比。`bench/prompt.py` 只负责把子任务整理成模板变量，`bench/record.py` 的 `RunRecord` 是 solve 交给评测的记录（决策以字典形式交出，不依赖任何框架的类）。
 
 框架目录统一加 `fw_`（framework）前缀：不能与库同名（`pydantic`、`langgraph`、`agents`、`openai`），否则会遮蔽真正的库。
 
@@ -143,6 +144,8 @@ START → agent ─┬─ 调查询工具 → tools（ToolNode）──→ agent
 - 启动 phoenix 的方法
 ```bash
 phoenix serve
-export PHOENIX_ENDPOINT=http://127.0.0.1:6006
-pdm run python run.py pydantic langgraph --limit 3
+```
+- 运行智能体
+```commandline
+pdm run python run.py pydantic langgraph --limit 1
 ```

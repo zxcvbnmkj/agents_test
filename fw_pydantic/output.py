@@ -1,8 +1,3 @@
-"""模型看到的最终输出：Decision 的类说明与 Field description 进入 schema，final_answer 的名字与描述只在这里定义。
-
-Decision 在三个框架里各有一份，内容必须一致，否则对比不公平。
-"""
-
 from __future__ import annotations
 
 from pydantic import BaseModel, Field

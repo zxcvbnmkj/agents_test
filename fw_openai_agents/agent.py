@@ -9,14 +9,14 @@ from pathlib import Path
 
 import config
 from agents import Agent, ModelSettings, OpenAIChatCompletionsModel, RunContextWrapper, StopAtTools, set_tracing_disabled
-from bench.prompt import prompt_vars
+from utils.prompt import prompt_vars
 from openai import AsyncOpenAI
 
 from .deps import DeliveryContext
 from .output import final_answer
-from .tools import get_store_products, search_products, search_stores
+from .tools import get_store_products, search_products, search_stores, search_user_history
 
-SYSTEM_PROMPT = (Path(__file__).parent / 'system.md').read_text(encoding='utf-8')
+SYSTEM_PROMPT = (Path(__file__).parent.parent / 'utils' / 'system.md').read_text(encoding='utf-8')
 
 # 当前项目使用自定义 OpenAI 兼容网关，且没有 OpenAI Traces 的认证配置。
 # 禁用 SDK 默认的 OpenAI tracing，避免每次运行产生 401；模型调用不受影响。
@@ -36,7 +36,7 @@ def dynamic_instructions(ctx: RunContextWrapper[DeliveryContext], agent: Agent[D
 agent = Agent[DeliveryContext](
     name='外卖下单助手',
     instructions=dynamic_instructions,
-    tools=[search_stores, get_store_products, search_products, final_answer],
+    tools=[search_stores, get_store_products, search_products, search_user_history, final_answer],
     tool_use_behavior=StopAtTools(stop_at_tool_names=['final_answer']),
     model_settings=ModelSettings(temperature=config.TEMPERATURE, extra_body=config.EXTRA_BODY),
 )

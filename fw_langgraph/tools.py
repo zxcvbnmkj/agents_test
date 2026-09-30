@@ -4,10 +4,9 @@ from .deps import Context
 
 
 @tool
-def search_stores(runtime: ToolRuntime[Context], keywords: list[str] | None = None) -> list[dict]:
-    """搜索外卖商家：店名、标签或在售商品名命中任一关键词即返回；不传关键词返回全部商家。
-    返回 store_id、店名、评分、标签（含菜系、配送时长、营业时间）。"""
-    return runtime.context.env.search_stores(keywords)
+def search_stores(runtime: ToolRuntime[Context], keywords: list[str] | None = None, limit: int = 10) -> list[dict]:
+    """搜索外卖商家：按关键词命中数量排序，最多返回 limit 家；不传关键词也只返回前 limit 家。"""
+    return runtime.context.env.search_stores(keywords, limit)
 
 
 @tool
@@ -22,4 +21,11 @@ def search_products(runtime: ToolRuntime[Context], keywords: list[str]) -> list[
     return runtime.context.env.search_products(keywords)
 
 
-TOOLS = [search_stores, get_store_products, search_products]
+@tool
+def search_user_history(runtime: ToolRuntime[Context], keywords: list[str], limit: int = 20) -> str:
+    """根据具体关键词查询用户行为记录；匹配会参考行为和对话，但返回仅含行为。
+    关键词优先使用商品名、品牌名、店铺名、行为类型及同义词，不要使用抽象概念；结果不相关时可换关键词重试。"""
+    return runtime.context.env.search_user_history(keywords, limit)
+
+
+TOOLS = [search_stores, get_store_products, search_products, search_user_history]

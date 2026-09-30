@@ -16,7 +16,7 @@ from typing import Literal
 
 import config
 import tracing
-from bench.prompt import prompt_vars
+from utils.prompt import prompt_vars
 from langchain_core.messages import HumanMessage, ToolMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
@@ -44,7 +44,7 @@ llm = ChatOpenAI(
 
 # 系统模板 + 对话历史占位，与模型用 | 串成一条链（LCEL）；系统提示词每轮现渲染、不写进 State
 prompt = ChatPromptTemplate.from_messages(
-    [('system', (Path(__file__).parent / 'system.md').read_text(encoding='utf-8')), MessagesPlaceholder('messages')]
+    [('system', (Path(__file__).parent.parent / 'utils' / 'system.md').read_text(encoding='utf-8')), MessagesPlaceholder('messages')]
 )
 chain = prompt | llm
 

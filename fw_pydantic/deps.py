@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from bench.data import Case
-from bench.env import DeliveryEnv
+from utils.data import Case
+from utils.env import DeliveryEnv
 
 
 @dataclass

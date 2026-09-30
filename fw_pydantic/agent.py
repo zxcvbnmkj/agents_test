@@ -6,7 +6,7 @@ from pathlib import Path
 
 import config
 import tracing
-from bench.prompt import prompt_vars
+from utils.prompt import prompt_vars
 from openai import AsyncOpenAI
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.openai import OpenAIChatModel
@@ -14,11 +14,11 @@ from pydantic_ai.providers.openai import OpenAIProvider
 
 from .deps import Deps
 from .output import FINAL_ANSWER
-from .tools import get_store_products, search_products, search_stores
+from .tools import get_store_products, search_products, search_stores, search_user_history
 
 tracing.setup_pydantic()
 
-SYSTEM_PROMPT = (Path(__file__).parent / 'system.md').read_text(encoding='utf-8')
+SYSTEM_PROMPT = (Path(__file__).parent.parent / 'utils' / 'system.md').read_text(encoding='utf-8')
 MODEL_SETTINGS = {'temperature': config.TEMPERATURE, 'extra_body': config.EXTRA_BODY}
 
 
@@ -50,7 +50,7 @@ def _instructions(ctx: RunContext[Deps]) -> str:
 agent = Agent(
     deps_type=Deps,
     output_type=FINAL_ANSWER,
-    retries=3,
+    retries=5,
     instructions=_instructions,
-    tools=[search_stores, get_store_products, search_products],
+    tools=[search_stores, get_store_products, search_products, search_user_history],
 )

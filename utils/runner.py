@@ -1,7 +1,6 @@
 """评测：对一批 Case 逐个调用框架的 solve，判分、打印、写明细。命令行入口见根目录 run.py。
 
-判分：选中的商品覆盖全部 target_product_ids 记为命中（hit），与目标集合完全一致记为精确（exact），
-召回（recall）= 选中的目标商品占比，给多件商品的子任务部分分（其余选项可能同样合理，只是不在标准答案里）。
+判分：商品和店铺分别计算命中（hit）、精确（exact）与召回（recall）。
 """
 
 from __future__ import annotations
@@ -13,8 +12,8 @@ from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 
-from bench.data import Case
-from bench.record import RunRecord
+from utils.data import Case
+from utils.record import RunRecord
 
 RESULT_DIR = Path(__file__).resolve().parents[1] / 'results'
 
@@ -27,6 +26,11 @@ def run(framework: str, solve: Callable[[Case], RunRecord], cases: list[tuple[Ca
         start = time.perf_counter()
         record = solve(case)
         chosen = record.decision['product_ids'] if record.decision else []
+        chosen_stores = {record.decision['store_id']} if record.decision and record.decision.get('store_id') else set()
+        target_stores = {
+            sid for sid, store in case.stores.items()
+            if any(product['product_id'] in target for product in store['products'])
+        }
         row = {
             'subtask_id': case.subtask_id,
             'skill_tested': case.skill_tested,
@@ -35,6 +39,11 @@ def run(framework: str, solve: Callable[[Case], RunRecord], cases: list[tuple[Ca
             'hit': set(target) <= set(chosen) and bool(chosen),
             'exact': set(target) == set(chosen),
             'recall': round(len(set(target) & set(chosen)) / len(target), 2),
+            'target_stores': sorted(target_stores),
+            'chosen_stores': sorted(chosen_stores),
+            'store_hit': bool(chosen_stores) and target_stores <= chosen_stores,
+            'store_exact': target_stores == chosen_stores,
+            'store_recall': round(len(target_stores & chosen_stores) / len(target_stores), 2) if target_stores else 0.0,
             'seconds': round(time.perf_counter() - start, 1),
             **asdict(record),
         }
@@ -51,11 +60,11 @@ def run(framework: str, solve: Callable[[Case], RunRecord], cases: list[tuple[Ca
 def _summary(framework: str, rows: list[dict], out: Path) -> None:
     n = len(rows) or 1
     print(f'\n[{framework}] {len(rows)} 个子任务')
-    print(f'  命中率 {sum(r["hit"] for r in rows) / n:.1%}  精确率 {sum(r["exact"] for r in rows) / n:.1%}  召回 {sum(r["recall"] for r in rows) / n:.1%}  出错 {sum(bool(r["error"]) for r in rows)} 个')
+    print(f'  商品  命中率 {sum(r["hit"] for r in rows) / n:.1%}  精确率 {sum(r["exact"] for r in rows) / n:.1%}  召回 {sum(r["recall"] for r in rows) / n:.1%}')
+    print(f'  店铺  命中率 {sum(r["store_hit"] for r in rows) / n:.1%}  精确率 {sum(r["store_exact"] for r in rows) / n:.1%}  召回 {sum(r["store_recall"] for r in rows) / n:.1%}  出错 {sum(bool(r["error"]) for r in rows)} 个')
     print(
         f'  平均 LLM 调用 {sum(r["llm_calls"] for r in rows) / n:.1f} 次  工具 {sum(len(r["tool_calls"]) for r in rows) / n:.1f} 次  '
         f'输入 {sum(r["input_tokens"] for r in rows) / n:,.0f} tokens  输出 {sum(r["output_tokens"] for r in rows) / n:,.0f} tokens  '
         f'耗时 {sum(r["seconds"] for r in rows) / n:.1f}s'
     )
     print(f'  明细：{out}')
-

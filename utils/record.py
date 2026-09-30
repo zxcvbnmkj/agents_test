@@ -1,4 +1,4 @@
-"""solve 交给评测的运行记录：框架与 bench 之间唯一的数据接口。"""
+"""solve 交给评测的运行记录：框架与 utils 之间唯一的数据接口。"""
 
 from __future__ import annotations
 

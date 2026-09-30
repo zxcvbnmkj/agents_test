@@ -11,8 +11,8 @@ import argparse
 import importlib
 
 import config  # noqa: F401 — 先加载 .env 与直连网关设置，再导入各框架
-from bench.data import load_cases
-from bench.runner import run
+from utils.data import load_cases
+from utils.runner import run
 
 # 按需导入：只跑其中一个框架时，不加载其余框架的库
 FRAMEWORKS = {'pydantic': 'fw_pydantic', 'openai_agents': 'fw_openai_agents', 'langgraph': 'fw_langgraph'}

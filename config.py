@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent / '.env')
 
 #: 模型名称（非密钥，可留默认）
-MODEL_NAME = os.getenv('MODEL_NAME', 'doubao-seed-2.0-lite')
+MODEL_NAME = os.getenv('MODEL_NAME', 'Doubao-Seed-2.1-pro')
 
 #: OpenAI 兼容网关地址（非密钥）
 BASE_URL = os.getenv('OPENAI_BASE_URL')
@@ -32,8 +32,8 @@ API_KEY = os.environ['OPENAI_API_KEY']
 TEMPERATURE = 0.1
 EXTRA_BODY = {'thinking': {'type': 'disabled'}}
 
-# Phoenix 本地服务地址；未配置时不启用 Phoenix tracing。
-PHOENIX_ENDPOINT = os.getenv('PHOENIX_ENDPOINT')
+# Phoenix 本地服务地址；服务未启动时 tracing 初始化会自动跳过。
+PHOENIX_ENDPOINT = os.getenv('PHOENIX_ENDPOINT', 'http://127.0.0.1:6006')
 
 # 本机 shell 配了全局代理（访问外网用），内网网关走代理会被掐断 TLS，必须直连
 _no_proxy = ','.join(filter(None, [os.getenv('no_proxy'), urlparse(BASE_URL).hostname]))

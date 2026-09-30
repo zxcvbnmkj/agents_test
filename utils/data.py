@@ -11,7 +11,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-TASK_FILE = Path(__file__).resolve().parents[1] / 'VitaBench-2' / 'tasks.json'
+# 全部用户
+# TASK_FILE = Path(__file__).resolve().parents[1] / 'VitaBench-2' / 'tasks.json'
+# 用来示例的一个用户
+TASK_FILE = Path(__file__).resolve().parents[1] / 'VitaBench-2' / 'sample.json'
 _WEEKDAYS = '一二三四五六日'
 
 
@@ -23,9 +26,11 @@ class Case:
     instruction: str
     time: str
     profile: dict
+    personalized_preference_memory: dict
     addresses: list[str]
     weather: list[dict]
     history: str
+    history_search: str
     stores: dict[str, dict]
 
 
@@ -36,9 +41,11 @@ def load_cases(user_ids: list[str] | None, history_chars: int, include_proactive
     cases = []
     for task in tasks:
         history: list[str] = []
+        history_search: list[str] = []
         for sub in task['subtasks']:
             # 累积到当前子任务为止的全部历史（官方 Full Context 口径）
             history.extend(_render_interaction(i) for i in sub['interactions'])
+            history_search.extend(_render_interaction(i, include_dialogue=True) for i in sub['interactions'])
             skills = [s for s in sub.get('skill_tested') or [] if s]
             if sub['domain'] != 'delivery' or not sub.get('target_product_ids'):
                 continue
@@ -52,9 +59,11 @@ def load_cases(user_ids: list[str] | None, history_chars: int, include_proactive
                 instruction=sub['instruction'],
                 time=env['time'],
                 profile=task['user_profile'],
+                personalized_preference_memory=sub.get('personalized_preference_memory') or {},
                 addresses=[loc['address'] for loc in env['location']],
                 weather=env['weather'],
                 history=_tail('\n'.join(history), history_chars),
+                history_search=_tail('\n'.join(history_search), history_chars),
                 stores={sid: _visible_store(s) for sid, s in env['stores'].items()},
             )
             cases.append((case, sub['target_product_ids']))
@@ -76,10 +85,18 @@ def _visible_store(store: dict) -> dict:
     }
 
 
-def _render_interaction(item: dict) -> str:
+def _render_interaction(item: dict, include_dialogue: bool = False) -> str:
     lines = [f'## {item["date"]}']
-    lines += [f'- 行为 {b["behavior_type"]}：{json.dumps(b["content"], ensure_ascii=False)}' for b in item.get('behavior') or []]
-    lines += [f'{"用户" if d["role"] == "user" else "助手"}：{d["content"]}' for d in item.get('dialogue') or []]
+    for behavior in item.get('behavior') or []:
+        content = behavior.get('content')
+        topic = content.get('topic') if isinstance(content, dict) else None
+        topic_text = f'，主题：{topic}' if topic else ''
+        lines.append(
+            f'- 行为 {behavior.get("behavior_type", "")}{topic_text}：'
+            f'{json.dumps(content, ensure_ascii=False)}'
+        )
+    if include_dialogue:
+        lines += [f'{"用户" if d["role"] == "user" else "助手"}：{d["content"]}' for d in item.get('dialogue') or []]
     return '\n'.join(lines)
 
 
